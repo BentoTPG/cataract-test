@@ -78,8 +78,7 @@
             model = await tmImage.load(modelURL, metadataURL);
             maxPredictions = model.getTotalClasses();
 
-            const flip = false; // Do not flip the webcam
-            webcam = new tmImage.Webcam(1000, 1000, flip); // Increased resolution for clearer image
+            webcam = new tmImage.Webcam(1000, 1000); // Increased resolution for clearer image
 
             await webcam.setup({ facingMode: "environment",frameRate: { ideal: 60, max: 999 }});
             await webcam.play();
