@@ -42,13 +42,20 @@
             padding: 10px 20px; /* Add padding for the button */
             font-size: 16px; /* Set font size */
         }
+
+        .top-page {
+            text-align: center; 
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 </head>
 <body>
-    <div>Teachable Machine Image Model</div>
-    <button type="button" onclick="init()">Start</button>
+    <div class="top-page">
+        <h1>CATARACT</h1>
+        <p>เมด อิน ไทยแลนด์</p>
+        <button type="button" onclick="init()">Start</button>
+    </div>
     <div id="webcam-container"></div>
     <div id="label-container"></div>
     
@@ -90,6 +97,7 @@
 
             // Show the freeze button after webcam starts
             document.querySelector(".freeze-button-container").style.display = "inline";
+            document.querySelector(".top-page").style.display = "none";
         }
 
         async function loop() {
