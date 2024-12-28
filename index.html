@@ -27,12 +27,12 @@
             }
 
             canvas {
-                width: 80% !important;
+                width: 90% !important;
                 height: auto !important;
             }
         }
 
-        .button-container {
+        .freeze-button-container {
             display: none; /* Initially hide the button */
             text-align: center;
             margin-top: 20px; /* Add space between webcam and button */
@@ -52,7 +52,7 @@
     <div id="webcam-container"></div>
     <div id="label-container"></div>
     
-    <div class="button-container">
+    <div class="freeze-button-container">
         <button type="button" id="freeze-button" onclick="toggleFreeze()">Freeze</button>
     </div>
 
@@ -89,7 +89,7 @@
             }
 
             // Show the freeze button after webcam starts
-            document.querySelector(".button-container").style.display = "inline";
+            document.querySelector(".freeze-button-container").style.display = "inline";
         }
 
         async function loop() {
