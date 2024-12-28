@@ -5,24 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teachable Machine Image Model</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
         #webcam-container, #label-container {
-            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        #webcam-container canvas {
-            width: 100%;
-            max-width: 400px;
-            height: auto;
-        }
-        button, select {
-            padding: 10px;
-            font-size: 16px;
-            margin: 10px;
+        @media (max-width: 600px) {
+            #webcam-container {
+                width: 100%;
+            }
+            canvas {
+                width: 100% !important;
+                height: auto !important;
+            }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
@@ -33,103 +28,39 @@
     <button type="button" onclick="init()">Start</button>
     <div id="webcam-container"></div>
     <div id="label-container"></div>
-    <select id="camera-select" style="display: none;" onchange="changeCamera()"></select>
-
     <script type="text/javascript">
         const URL = "https://teachablemachine.withgoogle.com/models/qUQypyQrz/";
-
         let model, webcam, labelContainer, maxPredictions;
-        let cameras = [];
-        let currentDeviceId = null;
 
-        // Load the image model and setup the webcam
         async function init() {
             const modelURL = URL + "model.json";
             const metadataURL = URL + "metadata.json";
-
             model = await tmImage.load(modelURL, metadataURL);
             maxPredictions = model.getTotalClasses();
-
-            // Get the list of all video input devices
-            cameras = await navigator.mediaDevices.enumerateDevices();
-            cameras = cameras.filter(device => device.kind === 'videoinput');
-
-            if (cameras.length === 0) {
-                alert("No camera found!");
-                return;
-            }
-
-            // Populate the camera select dropdown
-            populateCameraSelect();
-
-            // Set the initial camera
-            currentDeviceId = cameras[0].deviceId;
-            await setupWebcam();
-
-            // Append elements to the DOM
+            const flip = true;
+            webcam = new tmImage.Webcam(200, 200, flip);
+            await webcam.setup({ facingMode: "environment" });
+            await webcam.play();
+            window.requestAnimationFrame(loop);
             document.getElementById("webcam-container").appendChild(webcam.canvas);
             labelContainer = document.getElementById("label-container");
             for (let i = 0; i < maxPredictions; i++) {
                 labelContainer.appendChild(document.createElement("div"));
             }
-
-            // Show the camera select dropdown
-            document.getElementById("camera-select").style.display = "inline-block";
-        }
-
-        async function setupWebcam() {
-            try {
-                if (webcam) {
-                    await webcam.stop(); // Stop the current webcam
-                }
-
-                const flip = true; // Flip the webcam for front-facing camera
-                webcam = new tmImage.Webcam(200, 200, flip, currentDeviceId);
-                await webcam.setup({
-                    facingMode: "environment",
-                    width: { min: 640, ideal: 1280, max: 1920 },
-                    height: { min: 480, ideal: 720, max: 1080 },
-                    frameRate: { ideal: 30, max: 60 },
-                    deviceId: currentDeviceId
-                });
-                await webcam.play();
-                window.requestAnimationFrame(loop);
-            } catch (error) {
-                console.error("Error setting up webcam:", error);
-            }
         }
 
         async function loop() {
-            webcam.update(); // Update the webcam frame
+            webcam.update();
             await predict();
             window.requestAnimationFrame(loop);
         }
 
-        // Run the webcam image through the image model
         async function predict() {
             const prediction = await model.predict(webcam.canvas);
             for (let i = 0; i < maxPredictions; i++) {
-                const classPrediction =
-                    prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+                const classPrediction = prediction[i].className + ": " + prediction[i].probability.toFixed(2);
                 labelContainer.childNodes[i].innerHTML = classPrediction;
             }
-        }
-
-        function populateCameraSelect() {
-            const cameraSelect = document.getElementById("camera-select");
-            cameraSelect.innerHTML = '';
-            cameras.forEach((camera, index) => {
-                const option = document.createElement("option");
-                option.value = camera.deviceId;
-                option.text = camera.label || `Camera ${index + 1}`;
-                cameraSelect.appendChild(option);
-            });
-        }
-
-        async function changeCamera() {
-            const cameraSelect = document.getElementById("camera-select");
-            currentDeviceId = cameraSelect.value;
-            await setupWebcam();
         }
     </script>
 </body>
