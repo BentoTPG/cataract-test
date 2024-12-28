@@ -19,6 +19,10 @@
                 height: auto !important;
             }
         }
+        .button-container {
+            display: none;
+            text-align: center; /* Centers content horizontally */
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
@@ -28,6 +32,8 @@
     <button type="button" onclick="init()">Start</button>
     <div id="webcam-container"></div>
     <div id="label-container"></div>
+    <div class="button-container">
+        <button type="button" id="freeze-button" onclick="toggleFreeze()">Freeze</button></div>
     <script type="text/javascript">
         const URL = "https://teachablemachine.withgoogle.com/models/qUQypyQrz/";
         let model, webcam, labelContainer, maxPredictions;
@@ -48,6 +54,7 @@
             for (let i = 0; i < maxPredictions; i++) {
                 labelContainer.appendChild(document.createElement("div"));
             }
+            document.getElementById("freeze-button").style.display = "inline";
         }
 
         async function loop() {
@@ -61,6 +68,16 @@
             for (let i = 0; i < maxPredictions; i++) {
                 const classPrediction = prediction[i].className + ": " + prediction[i].probability.toFixed(2);
                 labelContainer.childNodes[i].innerHTML = classPrediction;
+            }
+        }
+
+        function toggleFreeze() {
+            isFrozen = !isFrozen;
+            document.getElementById("freeze-button").innerText = isFrozen ? "Unfreeze" : "Freeze";
+            if (!isFrozen) {
+                loop();
+            } else {
+                window.cancelAnimationFrame(animationFrameId);
             }
         }
     </script>
