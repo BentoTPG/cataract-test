@@ -61,6 +61,7 @@
     
     <div class="freeze-button-container">
         <button type="button" id="freeze-button" onclick="toggleFreeze()">Freeze</button>
+        <button type="button" id="changecam" onclick="changecam()">ChangeCamera</button>
     </div>
 
     <script type="text/javascript">
@@ -69,6 +70,7 @@
         let model, webcam, labelContainer, maxPredictions;
         let isFrozen = false;
         let animationFrameId;
+        mode = "environment";
 
         async function init() {
             const modelURL = URL + "model.json";
@@ -80,7 +82,7 @@
 
             webcam = new tmImage.Webcam(1000, 1000); // Increased resolution for clearer image
 
-            await webcam.setup({ facingMode: "environment",frameRate: { ideal: 60, max: 999 }});
+            await webcam.setup({ facingMode: mode,frameRate: { ideal: 60, max: 999 }});
             await webcam.play();
 
             window.requestAnimationFrame(loop);
@@ -124,6 +126,13 @@
             } else {
                 window.requestAnimationFrame(loop); // Resume the animation loop
             }
+        }
+
+        async function changecam() {
+            await webcam.stop();
+            document.getElementById("webcam-container").removeChild(webcam.canvas);
+            mode = mode === "user" ? "environment" : "user"; // Toggle between user and environment mode
+            init();
         }
     </script>
 </body>
