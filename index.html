@@ -5,23 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teachable Machine Image Model</title>
     <style>
+        body, html {
+            height: 100%; /* Ensures full height */
+            margin: 0; /* Remove default margins */
+            display: flex; /* Use flexbox to center elements */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            flex-direction: column; /* Stack elements vertically */
+        }
+
         #webcam-container, #label-container {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+
         @media (max-width: 600px) {
             #webcam-container {
                 width: 100%;
             }
+
             canvas {
                 width: 100% !important;
                 height: auto !important;
             }
         }
+
         .button-container {
-            display: none;
-            text-align: center; /* Centers content horizontally */
+            display: none; /* Initially hide the button */
+            text-align: center;
+            margin-top: 20px; /* Add space between webcam and button */
+        }
+
+        button {
+            padding: 10px 20px; /* Add padding for the button */
+            font-size: 16px; /* Set font size */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
@@ -32,35 +50,53 @@
     <button type="button" onclick="init()">Start</button>
     <div id="webcam-container"></div>
     <div id="label-container"></div>
+    
     <div class="button-container">
-        <button type="button" id="freeze-button" onclick="toggleFreeze()">Freeze</button></div>
+        <button type="button" id="freeze-button" onclick="toggleFreeze()">Freeze</button>
+    </div>
+
     <script type="text/javascript">
         const URL = "https://teachablemachine.withgoogle.com/models/qUQypyQrz/";
+
         let model, webcam, labelContainer, maxPredictions;
+        let isFrozen = false;
+        let animationFrameId;
 
         async function init() {
             const modelURL = URL + "model.json";
             const metadataURL = URL + "metadata.json";
+
+            // Load the model and metadata
             model = await tmImage.load(modelURL, metadataURL);
             maxPredictions = model.getTotalClasses();
-            const flip = false; // not flipping the webcam
-            webcam = new tmImage.Webcam(1000, 1000, flip); // increasing resolution for clearer image
-            await webcam.setup({ facingMode: "environment", 
-            frameRate: { ideal: 60, max: 30 } });
+
+            const flip = false; // Do not flip the webcam
+            webcam = new tmImage.Webcam(1000, 1000, flip); // Increased resolution for clearer image
+
+            await webcam.setup({ facingMode: "environment", frameRate: { ideal: 60, max: 30 } });
             await webcam.play();
+
             window.requestAnimationFrame(loop);
+
+            // Add the webcam canvas to the DOM
             document.getElementById("webcam-container").appendChild(webcam.canvas);
+
+            // Create labels for each prediction
             labelContainer = document.getElementById("label-container");
             for (let i = 0; i < maxPredictions; i++) {
                 labelContainer.appendChild(document.createElement("div"));
             }
-            document.getElementById("freeze-button").style.display = "inline";
+
+            // Show the freeze button after webcam starts
+            document.querySelector(".button-container").style.display = "inline";
         }
 
         async function loop() {
-            webcam.update();
-            await predict();
-            window.requestAnimationFrame(loop);
+            if (!isFrozen) {
+                webcam.update(); // Update the webcam frame
+                await predict();
+                animationFrameId = window.requestAnimationFrame(loop); // Continue looping
+            }
         }
 
         async function predict() {
@@ -74,10 +110,11 @@
         function toggleFreeze() {
             isFrozen = !isFrozen;
             document.getElementById("freeze-button").innerText = isFrozen ? "Unfreeze" : "Freeze";
-            if (!isFrozen) {
-                loop();
+
+            if (isFrozen) {
+                window.cancelAnimationFrame(animationFrameId); // Stop the animation loop
             } else {
-                window.cancelAnimationFrame(animationFrameId);
+                window.requestAnimationFrame(loop); // Resume the animation loop
             }
         }
     </script>
