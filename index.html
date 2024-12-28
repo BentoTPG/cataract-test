@@ -37,8 +37,8 @@
             const metadataURL = URL + "metadata.json";
             model = await tmImage.load(modelURL, metadataURL);
             maxPredictions = model.getTotalClasses();
-            const flip = true;
-            webcam = new tmImage.Webcam(200, 200, flip);
+            const flip = false; // not flipping the webcam
+            webcam = new tmImage.Webcam(320, 320, flip); // increasing resolution for clearer image
             await webcam.setup({ facingMode: "environment" });
             await webcam.play();
             window.requestAnimationFrame(loop);
