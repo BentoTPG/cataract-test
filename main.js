@@ -86,7 +86,7 @@ const URL = "https://teachablemachine.withgoogle.com/models/b3k4etZDa/";
                 "start": "Start" ,
                 "freeze-button": "Freeze",
                 "changecam": "ChangeCamera",
-                "swtchlang": "เปลียนเป็นภาษา🇹🇭", 
+                "swtchlang": "เปลียนเป็นภาษาไทย🇹🇭", 
             }
         };
         
