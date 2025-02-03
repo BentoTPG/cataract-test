@@ -26,7 +26,9 @@ const URL = "https://teachablemachine.withgoogle.com/models/b3k4etZDa/";
             // Create labels for each prediction
             labelContainer = document.getElementById("label-container");
             for (let i = 0; i < maxPredictions; i++) {
-                labelContainer.appendChild(document.createElement("div"));
+                const labelDiv = document.createElement("div");
+                labelDiv.classList.add("prediction-label");
+                labelContainer.appendChild(labelDiv);
             }
 
             // Show the freeze button after webcam starts
@@ -52,7 +54,8 @@ const URL = "https://teachablemachine.withgoogle.com/models/b3k4etZDa/";
 
         function toggleFreeze() {
             isFrozen = !isFrozen;
-            document.getElementById("freeze-button").innerText = isFrozen ? "Unfreeze" : "Freeze";
+            let currentLang = localStorage.getItem("language") || "en";
+            document.getElementById("freeze-button").innerText = isFrozen  ?  (currentLang == "en" ? "Unfreeze" : "แสดงภาพต่อ") : (currentLang == "en" ? "Freeze" : "หยุดเฟรม");
 
             if (isFrozen) {
                 window.cancelAnimationFrame(animationFrameId); // Stop the animation loop
@@ -67,3 +70,45 @@ const URL = "https://teachablemachine.withgoogle.com/models/b3k4etZDa/";
             mode = mode === "user" ? "environment" : "user"; // Toggle between user and environment mode
             init();
         }
+
+        const translations = {
+            "th": { 
+                "Appname": "ระบบพยากรณ์ความเสี่ยง<br>โรคต้อกระจก",
+                "credit": "โดย<br><br>แผนการเรียนวิทย์-คณิต-คอม<br>โรงเรียนตราษตระการคุณ", 
+                "start": "เริ่มการทำงาน" ,
+                "freeze-button": "หยุดภาพ",
+                "changecam": "สลับกล้อง",
+                "swtchlang": "Change to English🇬🇧",
+            },
+            "en": { 
+                "Appname": "CATARACT",
+                "credit": "BY SMC TKSCHOOL", 
+                "start": "Start" ,
+                "freeze-button": "Freeze",
+                "changecam": "ChangeCamera",
+                "swtchlang": "Cเปลียนเป็นภาษาไทย🇹🇭", 
+            }
+        };
+        
+        let attribute = ["Appname", "credit", "start", "freeze-button", "changecam", "swtchlang"];
+
+        function setLanguage(lang) {
+            localStorage.setItem("language", lang);
+            attribute.forEach((element) => {
+                document.getElementById(element).innerHTML = translations[lang][element];
+            });
+        }
+
+        function toggleLanguage() {
+            let currentLang = localStorage.getItem("language") || "en";
+            let newLang = currentLang === "th" ? "en" : "th";
+            setLanguage(newLang);
+            console.log("Switched to " + newLang);
+        }
+
+        // โหลดค่าภาษาเมื่อเปิดหน้าเว็บ
+        window.onload = () => {
+            let savedLang = localStorage.getItem("language") || "en";
+            setLanguage(savedLang);
+        };
+        
