@@ -44,10 +44,13 @@ const URL = "https://teachablemachine.withgoogle.com/models/p_YSieKKG/";
             }
         }
 
+        let diseaseth = ["ตาปกติ","ต้อหิน","ต้อเนื้อ","ต้อลม","ต้อกระจกหลายสี","ต้อกระจกจากเบาหวาน","ต้อกระจกจากการบาดเจ็บ","ต้อกระจกนิวเคลียร์"];
+
         async function predict() {
             const prediction = await model.predict(webcam.canvas);
             for (let i = 0; i < maxPredictions; i++) {
-                const classPrediction = prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+                let currentLang = localStorage.getItem("language") || "en";
+                    classPrediction = (currentLang == "en" ? prediction[i].className : diseaseth[i]) + ": " + prediction[i].probability.toFixed(2);
                 labelContainer.childNodes[i].innerHTML = classPrediction;
             }
         }
